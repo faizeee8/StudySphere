@@ -19,19 +19,23 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            overflow: hidden;
         }
+
         .video-container {
-            width: 80%;
+            width: 90%;
             max-width: 800px;
             background: black;
             border-radius: 10px;
-            padding: 20px;
+            padding: 10px;
             position: relative;
         }
+
         video {
             width: 100%;
             border-radius: 10px;
         }
+
         .username-overlay {
             position: absolute;
             bottom: 10px;
@@ -40,47 +44,57 @@
             color: white;
             padding: 5px 10px;
             border-radius: 5px;
-            font-size: 18px;
+            font-size: 16px;
         }
+
         .controls {
-            margin-top: 20px;
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
+
         .btn {
             background: #ff5e62;
             color: white;
             border: none;
-            padding: 15px 20px;
-            font-size: 18px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 16px;
+            border-radius: 8px;
             cursor: pointer;
-            margin: 10px;
             transition: 0.3s;
+            flex: 1 1 120px;
         }
+
         .btn:hover {
             background: #e14e53;
         }
+
         .leave-btn {
             background: transparent;
-            border: 3px solid red;
+            border: 2px solid red;
             color: red;
-            padding: 15px 30px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
             cursor: pointer;
             transition: 0.3s;
+            flex: 1 1 120px;
         }
+
         .leave-btn:hover {
             background: red;
             color: white;
         }
 
-        /* Chat Box */
+        /* Chat Box - Responsive */
         .chat-box {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 250px;
+            bottom: 10px;
+            right: 10px;
+            width: 90%;
+            max-width: 250px;
             background: rgba(0, 0, 0, 0.8);
             border-radius: 10px;
             padding: 10px;
@@ -89,12 +103,14 @@
             display: flex;
             flex-direction: column;
         }
+
         .chat-messages {
-            height: 150px;
+            height: 120px;
             overflow-y: auto;
             border-bottom: 1px solid #666;
             padding-bottom: 5px;
         }
+
         .chat-messages div {
             text-align: left;
             margin: 5px 0;
@@ -102,9 +118,11 @@
             background: #333;
             border-radius: 5px;
         }
+
         .chat-input {
             display: flex;
         }
+
         .chat-input input {
             flex: 1;
             padding: 5px;
@@ -112,6 +130,7 @@
             border-radius: 5px;
             outline: none;
         }
+
         .chat-input button {
             background: #ff5e62;
             color: white;
@@ -121,6 +140,25 @@
             cursor: pointer;
             margin-left: 5px;
         }
+
+        /* Make sure everything fits on smaller screens */
+        @media (max-width: 600px) {
+            .video-container {
+                width: 95%;
+            }
+
+            .btn, .leave-btn {
+                font-size: 14px;
+                padding: 10px 12px;
+            }
+
+            .chat-box {
+                width: 85%;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -131,10 +169,10 @@
     </div>
 
     <div class="controls">
-        <button class="btn" onclick="toggleMic()">🎤 Toggle Mic</button>
-        <button class="btn" onclick="toggleVideo()">📹 Toggle Video</button>
-        <button class="btn" id="shareScreenBtn" style="display: none;" onclick="toggleScreenShare()">🖥️ Share Screen</button>
-        <button class="leave-btn" onclick="leaveMeeting()">🚪 Leave Meeting</button>
+        <button class="btn" onclick="toggleMic()">🎤 Mic</button>
+        <button class="btn" onclick="toggleVideo()">📹 Video</button>
+        <button class="btn" id="shareScreenBtn" style="display: none;" onclick="toggleScreenShare()">🖥️ Share</button>
+        <button class="leave-btn" onclick="leaveMeeting()">🚪 Leave</button>
     </div>
 
     <!-- Chat Box -->
@@ -153,7 +191,6 @@
         let chatMessages = document.getElementById("chatMessages");
         let chatInput = document.getElementById("chatInput");
         let userName = "";
-        let screenStream = null;
 
         function askForName() {
             userName = prompt("Give yourself a name:");
@@ -205,48 +242,8 @@
             }
         }
 
-        function toggleScreenShare() {
-            if (userName !== localStorage.getItem("host")) {
-                alert("Only the host can share their screen!");
-                return;
-            }
-
-            if (!screenStream) {
-                navigator.mediaDevices.getDisplayMedia({ video: true })
-                    .then(function(stream) {
-                        screenStream = stream;
-                        video.srcObject = stream;
-
-                        stream.getVideoTracks()[0].onended = function() {
-                            stopScreenShare();
-                        };
-                    })
-                    .catch(function(error) {
-                        console.log("Error accessing screen share:", error);
-                    });
-            } else {
-                stopScreenShare();
-            }
-        }
-
-        function stopScreenShare() {
-            if (screenStream) {
-                let tracks = screenStream.getTracks();
-                tracks.forEach(track => track.stop());
-                screenStream = null;
-
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(function(stream) {
-                        video.srcObject = stream;
-                        video.dataset.stream = stream;
-                    });
-            }
-        }
-
         function leaveMeeting() {
-            if (userName === localStorage.getItem("host")) {
-                localStorage.removeItem("host");
-            }
+            localStorage.removeItem("host");
             window.location.href = "index.html";
         }
 
